@@ -1,11 +1,13 @@
 from sdsa.catalog.objective_blueprints import OBJECTIVE_BLUEPRINTS
 from sdsa.catalog.objective_blueprints_phase2 import OBJECTIVE_BLUEPRINTS_PHASE2
+from sdsa.catalog.objective_blueprints_phase3 import OBJECTIVE_BLUEPRINTS_PHASE3
 from sdsa.services.objective_service import ObjectiveBlueprintService
 
 
 def test_blueprint_catalog_is_massive() -> None:
     assert len(OBJECTIVE_BLUEPRINTS) == 2400
     assert len(OBJECTIVE_BLUEPRINTS_PHASE2) == 900
+    assert len(OBJECTIVE_BLUEPRINTS_PHASE3) == 1500
 
 
 def test_service_can_list_domains_and_filter() -> None:
@@ -56,8 +58,18 @@ def test_diversified_batch_covers_multiple_domains() -> None:
 def test_phase2_can_be_disabled() -> None:
     service_full = ObjectiveBlueprintService()
     service_base = ObjectiveBlueprintService(include_phase2=False)
-    assert service_full.total_blueprints() == 3300
-    assert service_base.total_blueprints() == 2400
+    assert service_full.total_blueprints() == 4800
+    assert service_base.total_blueprints() == 3900
+
+
+def test_phase3_can_be_disabled() -> None:
+    service_full = ObjectiveBlueprintService()
+    service_without_phase3 = ObjectiveBlueprintService(include_phase3=False)
+    service_only_phase1 = ObjectiveBlueprintService(include_phase2=False, include_phase3=False)
+
+    assert service_full.total_blueprints() == 4800
+    assert service_without_phase3.total_blueprints() == 3300
+    assert service_only_phase1.total_blueprints() == 2400
 
 
 def test_roadmap_groups_by_horizon() -> None:

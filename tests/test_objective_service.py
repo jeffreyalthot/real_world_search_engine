@@ -3,7 +3,7 @@ from sdsa.services.objective_service import ObjectiveBlueprintService
 
 
 def test_blueprint_catalog_is_massive() -> None:
-    assert len(OBJECTIVE_BLUEPRINTS) == 900
+    assert len(OBJECTIVE_BLUEPRINTS) == 1800
 
 
 def test_service_can_list_domains_and_filter() -> None:

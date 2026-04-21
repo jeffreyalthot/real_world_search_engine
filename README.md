@@ -1,2 +1,6 @@
 # real_world_search_engine
-un programme dont le but est de effectuer des recherche scientifique accelerer dans le but de créer de nouvelle invention dans le monde réel
+
+Ce dépôt contient une proposition d'architecture détaillée d'un **Système de Découverte Scientifique Assistée (SDSA)** pour accélérer la recherche scientifique et la génération d'innovations plausibles dans le monde réel.
+
+## Document principal
+- Voir : [`ARCHITECTURE_SDAA.md`](./ARCHITECTURE_SDAA.md)

@@ -39,6 +39,15 @@ python -m sdsa.gui.app
 pytest
 ```
 
+### 5) Mode invention continue (GUI)
+
+La GUI inclut désormais:
+- une **boucle infinie contrôlée** (start/stop) qui enchaîne les cycles d'invention,
+- la génération de **blueprints humains détaillés** (contraintes réelles, protocole validation, industrialisation),
+- un espace de **visualisation pipeline** en canvas,
+- une interface multipage avec **150 pages de spécification** prêtes à être complétées.
+
+
 ## Structure
 
 - `sdsa/core`: modèles de données + orchestrateur

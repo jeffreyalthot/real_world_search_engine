@@ -449,3 +449,169 @@ Le SDSA permet :
 - une accélération mesurable du cycle « idée -> simulation -> test -> apprentissage » au service des équipes humaines de R&D.
 
 Il reste explicitement borné par la qualité des données, les limites de calcul et la validation expérimentale externe.
+
+---
+
+## 14) Structures de données de référence (implémentables)
+
+## 14.1 Modèle canonique d'hypothèse (`HypothesisRecord`)
+```protobuf
+message HypothesisRecord {
+  string hypothesis_id = 1;
+  string objective_id = 2;
+  repeated string related_concept_ids = 3;
+  string mechanistic_statement = 4;   // texte structuré
+  string equation_program = 5;        // DSL compilable
+  repeated Constraint constraints = 6;
+  EvidenceProfile evidence = 7;
+  PlausibilityProfile plausibility = 8;
+  repeated string required_simulators = 9;
+  map<string, double> priors = 10;
+  string status = 11; // drafted|verified|simulated|rejected|promoted
+}
+```
+
+## 14.2 Modèle de contrainte (`Constraint`)
+- `type`: `physical|regulatory|manufacturing|cost|safety`
+- `expression`: formule logique/algébrique (SMT-LIB ou DSL interne)
+- `hardness`: `hard` (inviolable) vs `soft` (pénalisable)
+- `context`: domaine de validité (température, échelle, environnement)
+
+## 14.3 Modèle d'observation instrumentale
+```json
+{
+  "observation_id": "obs:2026-04-21:lab17:0012",
+  "instrument": {
+    "type": "calorimeter",
+    "calibration_curve_id": "cal:Q3-2026-17",
+    "measurement_range": [0.0, 500.0]
+  },
+  "quantity": "specific_heat_capacity",
+  "value": 1420.3,
+  "unit": "J/(kg*K)",
+  "uncertainty": {
+    "type": "gaussian",
+    "sigma": 11.6
+  },
+  "conditions": {
+    "temperature_K": 298.15,
+    "pressure_Pa": 101325
+  },
+  "provenance": {
+    "operator": "lab_bot_3",
+    "timestamp": "2026-04-21T10:15:00Z"
+  }
+}
+```
+
+## 14.4 Indexation multi-niveaux
+- **Index sémantique**: `(entity_id -> embedding)` pour retrieval conceptuel.
+- **Index équationnel**: hash canonique AST pour détecter équivalences algébriques.
+- **Index dimensionnel**: signature `[M, L, T, I, Θ, N, J]` pour vérification d'unités.
+- **Index causal**: motifs DAG annotés pour requêtes « mécanisme similaire ». 
+
+---
+
+## 15) Algorithmes centraux (pseudo-code opérationnel)
+
+## 15.1 Génération d'hypothèses sous contraintes
+```text
+Input: Objective O, KnowledgeGraph K, ConstraintSet C, Budget B
+Output: RankedHypotheses H*
+
+1. frontier <- detect_unknown_frontier(K, O)
+2. motifs <- mine_cross_domain_motifs(K, frontier)
+3. candidates <- constrained_llm_generate(motifs, C)
+4. candidates <- symbolic_filter(candidates, invariants=[conservation, causality, dimensions])
+5. candidates <- novelty_filter(candidates, K)
+6. for h in candidates:
+       h.score_prior <- score_plausibility_testability(h)
+7. H* <- top_k(candidates, k=B.initial_batch)
+8. return H*
+```
+
+## 15.2 Orchestration multi-fidélité guidée par valeur d'information
+```text
+for each hypothesis h in active_set:
+  run surrogate_sim(h)
+  if uncertainty(h) > tau_u and expected_information_gain(h) > tau_eig:
+      run medium_fidelity_sim(h)
+  if passes_gate(h, robustness, safety, feasibility):
+      run high_fidelity_hpc(h)
+  update posterior(h)
+```
+
+## 15.3 Résolution de contradictions scientifiques
+```text
+Given claims c1..cn on same phenomenon:
+  cluster by context regime (scale, material, T, P)
+  for each cluster:
+    compute evidence_weight = f(reproducibility, sample_size, bias_risk, recency)
+    infer compatibility graph
+    if incompatible:
+      mark contested + propose discriminative experiment
+```
+
+---
+
+## 16) Gouvernance, sûreté et auditabilité scientifique
+
+## 16.1 Niveaux de validation avant promotion d'une innovation
+- **V0 (formel)**: cohérence logique + dimensionnelle.
+- **V1 (numérique)**: convergence solveur + stabilité paramétrique.
+- **V2 (robustesse)**: sensibilité globale + stress tests scénarios extrêmes.
+- **V3 (réalité)**: protocole expérimental externe pré-enregistré.
+- **V4 (transfert)**: étude de fabricabilité + sécurité + conformité normative.
+
+Aucune proposition ne passe au niveau supérieur sans artefacts de preuve signés et versionnés.
+
+## 16.2 Traçabilité (ledger scientifique)
+Chaque étape écrit un événement immuable:
+- `event_id`, `parent_event_id`, `artifact_hash`, `model_version`, `dataset_snapshot`, `operator`.
+- Permet replay complet d'un résultat et audit par tiers.
+
+## 16.3 Politique anti-dérive
+- Détection de data drift (population stability index, KL divergence).
+- Détection de model drift (dégradation sur benchmarks gelés).
+- Circuit de rollback automatique vers version stable certifiée.
+
+---
+
+## 17) SLO/SLA techniques et scalabilité cible
+
+## 17.1 Objectifs de performance
+- Latence requête connaissance P95 < 800 ms (hors batch lourd).
+- Génération d'un lot de 100 hypothèses contraintes < 10 min.
+- Planification + lancement de 10k simulations/jour en cluster mixte.
+- Taux de reproductibilité simulation (re-run hash-identique) > 99.5%.
+
+## 17.2 Scalabilité
+- Partitionnement par domaine + sharding temporel pour données expérimentales.
+- Exécution asynchrone orientée événements pour absorber des pics d'ingestion.
+- Autoscaling séparé pour services NLP, inferencing LLM et solveurs HPC.
+
+## 17.3 Coût de calcul (FinOps scientifique)
+- Attribution coût par hypothèse (`cost_per_information_gain`).
+- Arrêt anticipé des branches peu prometteuses (bandits / pruning).
+- Priorisation green compute (fenêtres énergétiques bas carbone).
+
+---
+
+## 18) Exemple de déroulé complet (cas énergétique)
+
+### Problème
+« Concevoir un module de stockage stationnaire plus sûr que Li-ion, densité volumique > 450 Wh/L, coût < 90 €/kWh. »
+
+### Exécution système
+1. Formalisation en contraintes mathématiques et réglementaires.
+2. Recherche dans le graphe de mécanismes alternatifs (sodium solide, redox organique, hybride thermo-électrochimique).
+3. Génération de 320 hypothèses mécanistes, filtrage à 41 candidates physiquement valides.
+4. Simulation surrogate sur 41 candidates, puis haute fidélité sur 7.
+5. Optimisation multi-objectifs -> front de Pareto de 3 concepts.
+6. Production du design conceptuel gagnant + protocole de validation labo + risques.
+
+### Sortie
+- Dossier technique versionné.
+- Liste d'expériences discriminantes priorisées par gain d'information.
+- Score de confiance explicite et limites d'applicabilité.
+

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Dict, Iterable, List
 
 from sdsa.catalog.objective_blueprints import OBJECTIVE_BLUEPRINTS, ObjectiveBlueprint
+from sdsa.catalog.objective_blueprints_phase2 import OBJECTIVE_BLUEPRINTS_PHASE2
 
 
 @dataclass(slots=True)
@@ -17,11 +18,25 @@ class ObjectivePackSummary:
 class ObjectiveBlueprintService:
     """Accès aux blueprints d'objectifs pour accélérer l'exploration produit."""
 
-    def __init__(self, blueprints: Iterable[ObjectiveBlueprint] | None = None) -> None:
-        self._blueprints: List[ObjectiveBlueprint] = list(blueprints or OBJECTIVE_BLUEPRINTS)
+    def __init__(
+        self,
+        blueprints: Iterable[ObjectiveBlueprint] | None = None,
+        *,
+        include_phase2: bool = True,
+    ) -> None:
+        if blueprints is not None:
+            self._blueprints = list(blueprints)
+            return
+
+        self._blueprints = list(OBJECTIVE_BLUEPRINTS)
+        if include_phase2:
+            self._blueprints.extend(OBJECTIVE_BLUEPRINTS_PHASE2)
 
     def list_domains(self) -> list[str]:
         return sorted({bp["domain"] for bp in self._blueprints})
+
+    def total_blueprints(self) -> int:
+        return len(self._blueprints)
 
     def by_domain(self, domain: str, limit: int = 20) -> list[ObjectiveBlueprint]:
         filtered = [bp for bp in self._blueprints if bp["domain"] == domain]
@@ -81,6 +96,22 @@ class ObjectiveBlueprintService:
                 )
             )
         return summaries
+
+    def roadmap_by_domain(self, domain: str) -> dict[str, list[ObjectiveBlueprint]]:
+        """Regroupe les objectifs par horizon pour construire une roadmap."""
+        roadmap: dict[str, list[ObjectiveBlueprint]] = defaultdict(list)
+        for bp in self._blueprints:
+            if bp["domain"] != domain:
+                continue
+            roadmap[bp["horizon"]].append(bp)
+
+        ordered: dict[str, list[ObjectiveBlueprint]] = {}
+        for horizon in ["court_terme", "moyen_terme", "long_terme", "moonshot"]:
+            if horizon in roadmap:
+                ordered[horizon] = roadmap[horizon]
+        for horizon in sorted(set(roadmap) - set(ordered)):
+            ordered[horizon] = roadmap[horizon]
+        return ordered
 
     def to_objective_statement(self, blueprint: ObjectiveBlueprint) -> str:
         keys = ", ".join(blueprint["keywords"])

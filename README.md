@@ -44,7 +44,7 @@ pytest
 - `sdsa/core`: modèles de données + orchestrateur
 - `sdsa/services`: couche connaissance + génération d'hypothèses
 - `sdsa/sim`: moteur de simulation prototype
-- `sdsa/catalog`: bibliothèque d'objectifs (phase 1 + phase 2, 3300 blueprints)
+- `sdsa/catalog`: bibliothèque d'objectifs (phase 1 + phase 2 + phase 3, 4800 blueprints)
 - `sdsa/gui`: interface utilisateur Tkinter
 - `sdsa/api`: contrats API (spécification)
 - `tests`: tests unitaires

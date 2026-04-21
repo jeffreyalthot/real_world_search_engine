@@ -6,6 +6,7 @@ from typing import Dict, Iterable, List
 
 from sdsa.catalog.objective_blueprints import OBJECTIVE_BLUEPRINTS, ObjectiveBlueprint
 from sdsa.catalog.objective_blueprints_phase2 import OBJECTIVE_BLUEPRINTS_PHASE2
+from sdsa.catalog.objective_blueprints_phase3 import OBJECTIVE_BLUEPRINTS_PHASE3
 
 
 @dataclass(slots=True)
@@ -23,6 +24,7 @@ class ObjectiveBlueprintService:
         blueprints: Iterable[ObjectiveBlueprint] | None = None,
         *,
         include_phase2: bool = True,
+        include_phase3: bool = True,
     ) -> None:
         if blueprints is not None:
             self._blueprints = list(blueprints)
@@ -31,6 +33,8 @@ class ObjectiveBlueprintService:
         self._blueprints = list(OBJECTIVE_BLUEPRINTS)
         if include_phase2:
             self._blueprints.extend(OBJECTIVE_BLUEPRINTS_PHASE2)
+        if include_phase3:
+            self._blueprints.extend(OBJECTIVE_BLUEPRINTS_PHASE3)
 
     def list_domains(self) -> list[str]:
         return sorted({bp["domain"] for bp in self._blueprints})

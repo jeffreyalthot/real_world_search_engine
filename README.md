@@ -23,6 +23,12 @@ pip install -e .
 sdsa --objective "Matériau de stockage énergie haute densité" --budget 5
 ```
 
+Optionnel: persister/charger la base de connaissance prototype (JSON) :
+```bash
+sdsa --kg-out ./kg_snapshot.json
+sdsa --kg-in ./kg_snapshot.json --objective "Nouveau scénario"
+```
+
 ### 3) Lancer la GUI Tkinter
 ```bash
 python -m sdsa.gui.app

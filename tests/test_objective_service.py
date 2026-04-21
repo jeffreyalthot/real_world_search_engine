@@ -1,9 +1,11 @@
 from sdsa.catalog.objective_blueprints import OBJECTIVE_BLUEPRINTS
+from sdsa.catalog.objective_blueprints_phase2 import OBJECTIVE_BLUEPRINTS_PHASE2
 from sdsa.services.objective_service import ObjectiveBlueprintService
 
 
 def test_blueprint_catalog_is_massive() -> None:
     assert len(OBJECTIVE_BLUEPRINTS) == 2400
+    assert len(OBJECTIVE_BLUEPRINTS_PHASE2) == 900
 
 
 def test_service_can_list_domains_and_filter() -> None:
@@ -49,3 +51,18 @@ def test_diversified_batch_covers_multiple_domains() -> None:
     assert len(diversified) == 18
     domains = {item["domain"] for item in diversified}
     assert len(domains) >= 6
+
+
+def test_phase2_can_be_disabled() -> None:
+    service_full = ObjectiveBlueprintService()
+    service_base = ObjectiveBlueprintService(include_phase2=False)
+    assert service_full.total_blueprints() == 3300
+    assert service_base.total_blueprints() == 2400
+
+
+def test_roadmap_groups_by_horizon() -> None:
+    service = ObjectiveBlueprintService()
+    roadmap = service.roadmap_by_domain("energy_storage")
+    assert "court_terme" in roadmap
+    assert roadmap["court_terme"]
+    assert all(item["domain"] == "energy_storage" for values in roadmap.values() for item in values)
